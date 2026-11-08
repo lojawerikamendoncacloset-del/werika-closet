@@ -41,7 +41,7 @@ const fmtTel=n=>{const d=n.replace(/^55/,'');return d.length===11?`(${d.slice(0,
 
 function setTab(t){document.querySelectorAll('.tab[data-t]').forEach(x=>x.classList.toggle('on',x.dataset.t===t));}
 function tabHome(){$('menu').hidden=true;$('search').hidden=true;go('home');setTab('home');}
-function tabCats(){go('home');setTab('cats');if($('menu').hidden)toggleMenu();}
+function tabCats(){$('menu').hidden=true;$('search').hidden=true;go('home');setTab('cats');setTimeout(()=>{const c=$('chips');if(c)c.scrollIntoView({behavior:'smooth',block:'center'});},60);}
 function tabSearch(){go('home');setTab('search');if($('search').hidden)toggleSearch();}
 function go(v){if((v==='home'||v==='bag')&&location.hash.startsWith('#peca-'))history.replaceState(null,'',location.pathname);setTab(v==='bag'?'bag':v==='home'?'home':'');document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id===v));
  document.querySelector('.tabs').hidden=['login','admin','edit','bedit'].includes(v);
@@ -99,13 +99,13 @@ const IG='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="cu
 const WAI='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z"/></svg>';
 const igUser=()=>String(DB.txt.menu.insta.user||'').replace(/^@/,'').replace(/^https?:\/\/(www\.)?instagram\.com\//,'').replace(/\/.*$/,'').trim();
 function toggleMenu(){const m=$('menu'),M=DB.txt.menu;
- let h=CATS.map(c=>`<button onclick="pickCat('${c}');$('secT').scrollIntoView({behavior:'smooth'})">${c}</button>`).join('');
+ let h=`<button class="mx" onclick="pickCat('Novidades');$('chips').scrollIntoView({behavior:'smooth',block:'center'})">Ver todas as peças</button>`;
  const x=[];
- if(M.promo.on)x.push(`<button class="mx promo" onclick="pickCat('__promo');$('secT').scrollIntoView({behavior:'smooth'})">${esc(M.promo.title||'Promoções')}</button>`);
+ if(M.promo.on&&DB.prods.some(p=>p.promo&&!p.out))x.push(`<button class="mx promo" onclick="pickCat('__promo');$('secT').scrollIntoView({behavior:'smooth'})">${esc(M.promo.title||'Promoções')}</button>`);
  if(M.cond.on)x.push(`<button class="mx" onclick="openInfo()">${esc(M.cond.title||'Como funciona o condicional')}</button>`);
  if(M.insta.on&&igUser())x.push(`<a class="mx" href="https://instagram.com/${encodeURIComponent(igUser())}" target="_blank" rel="noopener">${IG}${esc(M.insta.title||'Instagram')} <small>@${esc(igUser())}</small></a>`);
  if(M.wa.on)x.push(`<a class="mx wa" href="#" target="_blank" rel="noopener" onclick="this.href=waLink(waContext())">${WAI}${esc(M.wa.title||'Dúvidas? Fale no WhatsApp')}</a>`);
- if(x.length)h+='<div class="msep"></div>'+x.join('');
+ h+=x.join('');
  m.innerHTML=h;m.hidden=!m.hidden;$('search').hidden=true;}
 function openInfo(){const M=DB.txt.menu.cond;$('menu').hidden=true;$('iTitle').textContent=M.title||'Como funciona o condicional';
  $('iText').innerHTML=esc(M.text||'').split(/\n{2,}|\n/).filter(Boolean).map(l=>`<p>${l}</p>`).join('');go('info');}
