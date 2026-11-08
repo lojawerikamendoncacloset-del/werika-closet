@@ -73,10 +73,21 @@ function renderBag(){updCount();
  const tot=bag.reduce((a,b)=>a+(byId(b.id).p||0)*b.q,0),cons=bag.some(b=>!byId(b.id).p);$('tot').textContent=tot?brl(tot)+(cons?' + consulte':''):'A consultar';
  $('mC').classList.toggle('on',mode==='c');$('mB').classList.toggle('on',mode==='b');
  $('waTxt').textContent=mode==='c'?'Pedir condicional pelo WhatsApp':'Enviar pedido pelo WhatsApp';
- const msg=(mode==='c'?'Olá, Werika! Quero pedir um condicional com estas peças para experimentar:':'Olá, Werika! Quero comprar estas peças (envio):')+'\n\n'+bag.map(b=>{const p=byId(b.id);return `• ${b.q}x ${p.n} (tam. ${b.s}) - ${p.p?brl(p.p*b.q):'preço a consultar'}`}).join('\n')+(tot?`\n\nTotal: ${brl(tot)}`+(cons?' (+ peças com preço a consultar)':''):'')+(mode==='c'?'\n\nMeu endereço: ':'\n\nCidade/CEP para envio: ');
+ const msg=(mode==='c'?'Olá, Werika! Quero pedir um condicional com estas peças para experimentar:':'Olá, Werika! Quero comprar estas peças (envio):')+'\n\n'+bag.map(b=>{const p=byId(b.id);return `• ${b.q}x ${p.n} (tam. ${b.s}) - ${p.p?brl(p.p*b.q):'preço a consultar'}\n  ${pLink(p.id)}`}).join('\n')+(tot?`\n\nTotal: ${brl(tot)}`+(cons?' (+ peças com preço a consultar)':''):'')+(mode==='c'?'\n\nMeu endereço: ':'\n\nCidade/CEP para envio: ');
  $('waBtn').href=waLink(msg);}
 function setMode(m){mode=m;renderBag();}
-function askCond(){if(bag.length){mode='c';go('bag');return;}if(!$('home').classList.contains('on'))return;$('condWa').href=waLink('Olá, Werika! Quero pedir um condicional. Pode me mostrar os looks disponíveis?');$('condWa').click();}
+const pLink=id=>location.origin+location.pathname+'#peca-'+id;
+const pLine=(p,extra='')=>`• ${p.n}${p.brand?' ('+p.brand+')':''}${extra} - ${p.p?brl(p.p):'preço a consultar'}`;
+function waContext(){
+ const seen=cur&&byId(cur);let m='Olá, Werika! Vim pelo catálogo.';
+ if(bag.length){const tot=bag.reduce((a,b)=>a+(byId(b.id).p||0)*b.q,0);
+  m+='\n\nEstou com estas peças na sacola:\n'+bag.map(b=>{const p=byId(b.id);return pLine(p,`, tam. ${b.s}${b.q>1?', '+b.q+' unid.':''}`)}).join('\n');
+  if(tot)m+=`\nTotal: ${brl(tot)}`;
+  if(seen&&!bag.some(b=>b.id===cur))m+=`\n\nTambém fiquei de olho nesta:\n${pLine(seen)}\n${pLink(seen.id)}`;}
+ else if(seen)m+=`\n\nFiquei de olho nesta peça:\n${pLine(seen)}\n${pLink(seen.id)}`;
+ return m;}
+function waAsk(){const p=byId(cur);return waLink(`Olá, Werika! Vim pelo catálogo e tenho uma dúvida sobre esta peça:\n${pLine(p)}${size?'\nTamanho que me interessa: '+size:''}\n${pLink(p.id)}`);}
+function askCond(){if(bag.length){mode='c';go('bag');return;}if(!$('home').classList.contains('on'))return;$('condWa').href=waLink(cur&&byId(cur)?`Olá, Werika! Quero pedir um condicional. Fiquei de olho nesta peça:\n${pLine(byId(cur))}\n${pLink(cur)}`:'Olá, Werika! Quero pedir um condicional. Pode me mostrar os looks disponíveis?');$('condWa').click();}
 function toggleMenu(){const m=$('menu');m.innerHTML=CATS.map(c=>`<button onclick="pickCat('${c}');$('secT').scrollIntoView({behavior:'smooth'})">${c}</button>`).join('');m.hidden=!m.hidden;$('search').hidden=true;}
 function toggleSearch(){const s=$('search');s.hidden=!s.hidden;$('menu').hidden=true;if(!s.hidden)$('q').focus();else{$('q').value='';renderGrid();}}
 
@@ -155,7 +166,7 @@ function blockHTML(b){const e=esc;switch(b.t){
  case 'text':return `<div class="tblock">${b.title?`<h3>${e(b.title)}</h3>`:''}${b.text?`<p>${e(b.text).replace(/\n/g,'<br>')}</p>`:''}</div>`;
  case 'catalog':return `<div class="sec" style="margin-top:26px"><h3>${e(b.title||'Todas as peças')}</h3></div><div class="chips" id="chips"></div><div class="sec" style="margin-top:14px"><h3 id="secT" style="font-size:20px"></h3><span class="eyebrow" id="secN"></span></div><div class="grid" id="grid"></div>`;}}
 function renderHome(){const t=DB.txt;
- $('annT').textContent=t.ann;$('annT').hidden=!t.ann;$('footWa').textContent=fmtTel(t.wa);$('waTab').href=waLink('Olá, Werika! Vim pelo catálogo.');
+ $('annT').textContent=t.ann;$('annT').hidden=!t.ann;$('footWa').textContent=fmtTel(t.wa);$('waTab').href=waLink(waContext());
  if(!DB.home.some(b=>b.t==='catalog'))DB.home.push({id:'hc',t:'catalog',on:true,title:'Todas as peças'});
  $('blocks').innerHTML=DB.home.filter(b=>b.on||b.t==='catalog').map(blockHTML).join('');
  document.querySelectorAll('.brand').forEach(x=>x.classList.toggle('sel',x.dataset.brand===brand));

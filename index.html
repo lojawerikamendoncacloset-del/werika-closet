@@ -51,6 +51,7 @@
   <p class="price" id="pPrice"></p>
   <p class="desc" id="pDesc"></p>
   <span class="tag" id="condTag"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A46A" stroke-width="1.8"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Pode pedir no condicional</span>
+  <a class="ask" id="askWa" href="#" target="_blank" rel="noopener" onclick="this.href=waAsk()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z"/></svg>Tirar dúvida sobre esta peça</a>
   <p class="eyebrow" style="margin-top:18px;color:var(--ink)">Tamanho</p>
   <div class="sizes" id="sizes"></div>
   <p class="err" id="err"></p>
@@ -177,7 +178,7 @@
  <button class="tab" data-t="cats" onclick="tabCats()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 4a2 2 0 0 1 2 2c0 1-1 1.5-2 2.2L3 15h18l-9-6.8"/><path d="M3 15v1h18v-1"/></svg>Categorias</button>
  <button class="tab" data-t="search" onclick="tabSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Buscar</button>
  <button class="tab" data-t="bag" onclick="go('bag')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="badge" data-cnt>0</span>Sacola</button>
- <a class="tab wa" id="waTab" href="https://wa.me/5564992071978" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.6-2-1-1 .9a5 5 0 0 1-2.8-2.8l.9-1-1-2z"/></svg>WhatsApp</a>
+ <a class="tab wa" id="waTab" href="https://wa.me/5564992071978" target="_blank" rel="noopener" onclick="if(ready)this.href=waLink(waContext())"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.6-2-1-1 .9a5 5 0 0 1-2.8-2.8l.9-1-1-2z"/></svg>WhatsApp</a>
 </nav>
 <div class="crop" id="crop" hidden>
  <div class="pad" style="padding-block:calc(16px + env(safe-area-inset-top,0px)) 0;display:flex;justify-content:space-between;align-items:center">
