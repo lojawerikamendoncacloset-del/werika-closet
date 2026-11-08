@@ -24,7 +24,7 @@
  <div class="ann pad" id="annT"></div>
  <header class="hdr pad">
   <button class="hb" onclick="toggleMenu()" aria-label="Menu"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-  <div class="wm" onclick="pickCat('Novidades')"><span class="w1">Werika</span><span class="w2">Mendonça</span><span class="w3">CLOSET</span></div>
+  <div class="wm" onclick="pickCat('Novidades');scrollTo({top:0,behavior:'smooth'})"><img class="marca" src="/img/marca.png" alt="Werika Mendonça Closet" width="114" height="70"></div>
   <div style="display:flex;gap:4px">
    <button class="hb" onclick="toggleSearch()" aria-label="Buscar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
    <button class="hb" onclick="go('bag')" aria-label="Abrir sacola" style="position:relative"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="badge" data-cnt>0</span></button>
@@ -85,7 +85,7 @@
 
 <section class="view adm" id="login">
  <div class="pad" style="padding-top:calc(60px + env(safe-area-inset-top,0px));text-align:center">
-  <div class="wm" style="display:inline-flex"><span class="w1">Werika</span><span class="w2">Mendonça</span><span class="w3">CLOSET</span></div>
+  <div class="wm" style="display:inline-flex"><img class="marca" src="/img/marca.png" alt="Werika Mendonça Closet" width="180" height="110" style="height:110px"></div>
   <h2 class="ser" style="font-size:32px;font-weight:500;margin:28px 0 6px">Área da loja</h2>
   <p style="font-size:14px;color:var(--gold2)">Entre para cadastrar e editar as peças.</p>
   <form onsubmit="event.preventDefault();doLogin(this.querySelector('.cta'))" style="margin-top:26px;text-align:left">
