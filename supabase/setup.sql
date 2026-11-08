@@ -23,6 +23,11 @@ create table if not exists public.config (
 );
 insert into public.config (id, dados) values (1, '{}') on conflict (id) do nothing;
 
+-- Acesso pela API do site
+grant usage on schema public to anon, authenticated;
+grant select on public.produtos, public.config to anon, authenticated;
+grant insert, update, delete on public.produtos, public.config to authenticated;
+
 -- Segurança: qualquer pessoa vê, só quem fez login (a Werika) altera
 alter table public.produtos enable row level security;
 alter table public.config enable row level security;
