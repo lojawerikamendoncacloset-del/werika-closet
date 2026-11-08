@@ -4,17 +4,20 @@
 const sb=supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey);
 const CATS=['Novidades','Vestidos','Blusas','Calças','Saias','Conjuntos'];
 const SIZES=['PP','P','M','G','GG','Único'];
+const DEF_MENU={promo:{on:true,title:'Promoções'},cond:{on:true,title:'Como funciona o condicional',text:'1. Escolha as peças que você quer experimentar e me chame no WhatsApp.\n2. Eu levo os looks até você, em Pontalina e região.\n3. Experimente com calma, no conforto da sua casa.\n4. Fique com o que amar e devolva o restante.'},insta:{on:true,title:'Instagram',user:'werikamendonca'},wa:{on:true,title:'Dúvidas? Fale no WhatsApp'}};
 const DEF_TXT={ann:'Peça seu condicional · Enviamos para todo o Brasil',pa:'',wa:'5564992071978'};
 let DB={prods:[],txt:{...DEF_TXT},home:null};
 const img=s=>s||'';
-const fromRow=r=>({id:r.id,n:r.nome,brand:r.marca||'',cat:r.categoria||'Vestidos',p:r.preco?Number(r.preco):null,d:r.descricao||'',sizes:r.tamanhos||[],imgs:r.fotos||[],out:!!r.esgotado});
-const toRow=p=>({nome:p.n,marca:p.brand,categoria:p.cat,preco:p.p,descricao:p.d,tamanhos:p.sizes,fotos:p.imgs,esgotado:p.out});
+const fromRow=r=>({id:r.id,n:r.nome,brand:r.marca||'',cat:r.categoria||'Vestidos',p:r.preco?Number(r.preco):null,d:r.descricao||'',sizes:r.tamanhos||[],imgs:r.fotos||[],out:!!r.esgotado,promo:!!r.promocao,old:r.preco_antigo?Number(r.preco_antigo):null});
+const toRow=p=>({nome:p.n,marca:p.brand,categoria:p.cat,preco:p.p,descricao:p.d,tamanhos:p.sizes,fotos:p.imgs,esgotado:p.out,promocao:!!p.promo,preco_antigo:p.promo?p.old:null});
+const noPromoCols=e=>e&&/promocao|preco_antigo/.test(e.message||'');
+const rowNoPromo=p=>{const r=toRow(p);delete r.promocao;delete r.preco_antigo;return r;};
 async function loadAll(){
  const [pr,cf]=await Promise.all([sb.from('produtos').select('*').order('criado_em',{ascending:false}),sb.from('config').select('dados').eq('id',1).maybeSingle()]);
  if(pr.error)throw pr.error;
  DB.prods=pr.data.map(fromRow);
  const d=(cf.data&&cf.data.dados)||{};
- DB.txt={...DEF_TXT,...(d.txt||{})};DB.home=Array.isArray(d.home)&&d.home.length?d.home:defHome();}
+ DB.txt={...DEF_TXT,...(d.txt||{})};DB.txt.menu=JSON.parse(JSON.stringify(DEF_MENU));Object.keys(DEF_MENU).forEach(k=>Object.assign(DB.txt.menu[k],((d.txt||{}).menu||{})[k]||{}));DB.home=Array.isArray(d.home)&&d.home.length?d.home:defHome();}
 async function saveCfg(){const {error}=await sb.from('config').upsert({id:1,dados:{txt:DB.txt,home:DB.home},atualizado_em:new Date().toISOString()});if(error)throw error;}
 async function upload(dataUrl){const blob=await (await fetch(dataUrl)).blob();
  const path=`${new Date().toISOString().slice(0,10)}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.jpg`;
@@ -31,6 +34,8 @@ let cat='Novidades',brand=null,cur=null,size=null,bag=[],mode='c',logged=false,e
 const $=id=>document.getElementById(id);
 const brl=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const price=v=>v?brl(v):'Consulte';
+const cardPrice=p=>p.promo&&p.old&&p.p?`<s class="old">${brl(p.old)}</s> ${brl(p.p)}`:price(p.p);
+const promoTag=p=>p.promo&&!p.out?'<span class="ptag">PROMO</span>':'';
 const waLink=t=>'https://wa.me/'+DB.txt.wa+'?text='+encodeURIComponent(t);
 const fmtTel=n=>{const d=n.replace(/^55/,'');return d.length===11?`(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`:n;};
 
@@ -43,7 +48,8 @@ function go(v){if((v==='home'||v==='bag')&&location.hash.startsWith('#peca-'))hi
  if(v==='bag')renderBag();if(v==='home')renderHome();if(v==='admin')renderAdmin();window.scrollTo(0,0);}
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),1900);}
 
-function renderChips(){if(!$('chips'))return;$('chips').innerHTML=CATS.map(c=>`<button class="chip ${c===cat&&!brand?'on':''}" onclick="pickCat('${c}')">${c}</button>`).join('');}
+function renderChips(){if(!$('chips'))return;const pr=DB.txt.menu.promo.on&&DB.prods.some(p=>p.promo&&!p.out)?`<button class="chip promo ${cat==='__promo'&&!brand?'on':''}" onclick="pickCat('__promo')">${esc(DB.txt.menu.promo.title||'Promoções')}</button>`:'';
+ $('chips').innerHTML=CATS.map(c=>`<button class="chip ${c===cat&&!brand?'on':''}" onclick="pickCat('${c}')">${c}</button>`).join('').replace('</button>','</button>'+pr);}
 function pickCat(c){$('menu').hidden=true;$('q').value='';cat=c;brand=null;document.querySelectorAll('.brand').forEach(b=>b.classList.remove('sel'));renderChips();renderGrid();}
 function pickBrand(el){const b=el.dataset.brand;brand=brand===b?null:b;document.querySelectorAll('.brand').forEach(x=>x.classList.toggle('sel',x.dataset.brand===brand));renderChips();renderGrid();$('secT').scrollIntoView({behavior:'smooth',block:'start'});}
 function renderGrid(){
@@ -51,14 +57,15 @@ function renderGrid(){
  const q=($('q').value||'').trim().toLowerCase();
  if(q){$('secT').textContent='Busca';list=list.filter(p=>(p.n+' '+p.cat+' '+p.brand).toLowerCase().includes(q));}
  else if(brand){$('secT').textContent=brand;list=list.filter(p=>p.brand===brand);}
+ else if(cat==='__promo'){$('secT').textContent=DB.txt.menu.promo.title||'Promoções';list=list.filter(p=>p.promo);}
  else{$('secT').textContent=cat;if(cat!=='Novidades')list=list.filter(p=>p.cat===cat);}
  list.sort((a,b)=>a.out-b.out);
  $('secN').textContent=list.length?list.length+(list.length>1?' peças':' peça'):'';
  if(!$('grid'))return;
- $('grid').innerHTML=list.length?list.map(p=>`<button class="card" onclick="openP('${p.id}')"><div class="ph"><img src="${img(p.imgs[0])}" alt="${esc(p.n)}">${p.out?'<div class="soldout"><span>ESGOTADO</span></div>':''}</div><p>${esc(p.n)}</p><b>${price(p.p)}</b></button>`).join('')
-  :`<div class="empty">${q?'Nenhuma peça encontrada para “'+esc(q)+'”.':brand?'As peças da '+brand+' aparecem aqui assim que forem cadastradas.':'Em breve novas peças de '+cat.toLowerCase()+'.'}</div>`;
+ $('grid').innerHTML=list.length?list.map(p=>`<button class="card" onclick="openP('${p.id}')"><div class="ph"><img src="${img(p.imgs[0])}" alt="${esc(p.n)}">${p.out?'<div class="soldout"><span>ESGOTADO</span></div>':''}${promoTag(p)}</div><p>${esc(p.n)}</p><b>${cardPrice(p)}</b></button>`).join('')
+  :`<div class="empty">${q?'Nenhuma peça encontrada para “'+esc(q)+'”.':brand?'As peças da '+brand+' aparecem aqui assim que forem cadastradas.':cat==='__promo'?'Nenhuma promoção no momento. Volte logo!':'Em breve novas peças de '+cat.toLowerCase()+'.'}</div>`;
 }
-function openP(id,k=0){cur=id;history.replaceState(null,'','#peca-'+id);size=null;const p=byId(id);$('pCat').textContent=p.brand+' · '+p.cat;$('pName').textContent=p.n;$('pPrice').innerHTML=p.p?brl(p.p)+(DB.txt.pa?' <span>· '+esc(DB.txt.pa)+'</span>':''):'Preço sob consulta <span>· chame no WhatsApp</span>';$('pDesc').textContent=p.d;$('err').textContent='';
+function openP(id,k=0){cur=id;history.replaceState(null,'','#peca-'+id);size=null;const p=byId(id);$('pCat').textContent=p.brand+' · '+p.cat;$('pName').textContent=p.n;$('pPrice').innerHTML=p.p?(p.promo&&p.old?`<s class="old">${brl(p.old)}</s> `:'')+brl(p.p)+(DB.txt.pa?' <span>· '+esc(DB.txt.pa)+'</span>':''):'Preço sob consulta <span>· chame no WhatsApp</span>';$('pDesc').textContent=p.d;$('err').textContent='';
  const b=document.querySelector('#prod .bar .cta');b.disabled=p.out;b.textContent=p.out?'Peça esgotada':'Colocar na sacola';showImg(k);renderSizes();go('prod');}
 function showImg(k){const p=byId(cur);$('bigImg').src=img(p.imgs[k]);$('thumbs').innerHTML=p.imgs.map((s,j)=>`<button class="${j===k?'on':''}" onclick="showImg(${j})" aria-label="Foto ${j+1}"><img src="${img(s)}" alt=""></button>`).join('');}
 function renderSizes(){const p=byId(cur);$('sizes').innerHTML=p.sizes.map(s=>`<button class="sz ${s===size?'on':''}" onclick="size='${s}';$('err').textContent='';renderSizes()">${s}</button>`).join('')||'<span style="font-size:13px;color:var(--gold2)">Consulte pelo WhatsApp</span>';}
@@ -88,7 +95,20 @@ function waContext(){
  return m;}
 function waAsk(){const p=byId(cur);return waLink(`Olá, Werika! Vim pelo catálogo e tenho uma dúvida sobre esta peça:\n${pLine(p)}${size?'\nTamanho que me interessa: '+size:''}\n${pLink(p.id)}`);}
 function askCond(){if(bag.length){mode='c';go('bag');return;}if(!$('home').classList.contains('on'))return;$('condWa').href=waLink(cur&&byId(cur)?`Olá, Werika! Quero pedir um condicional. Fiquei de olho nesta peça:\n${pLine(byId(cur))}\n${pLink(cur)}`:'Olá, Werika! Quero pedir um condicional. Pode me mostrar os looks disponíveis?');$('condWa').click();}
-function toggleMenu(){const m=$('menu');m.innerHTML=CATS.map(c=>`<button onclick="pickCat('${c}');$('secT').scrollIntoView({behavior:'smooth'})">${c}</button>`).join('');m.hidden=!m.hidden;$('search').hidden=true;}
+const IG='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>';
+const WAI='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z"/></svg>';
+const igUser=()=>String(DB.txt.menu.insta.user||'').replace(/^@/,'').replace(/^https?:\/\/(www\.)?instagram\.com\//,'').replace(/\/.*$/,'').trim();
+function toggleMenu(){const m=$('menu'),M=DB.txt.menu;
+ let h=CATS.map(c=>`<button onclick="pickCat('${c}');$('secT').scrollIntoView({behavior:'smooth'})">${c}</button>`).join('');
+ const x=[];
+ if(M.promo.on)x.push(`<button class="mx promo" onclick="pickCat('__promo');$('secT').scrollIntoView({behavior:'smooth'})">${esc(M.promo.title||'Promoções')}</button>`);
+ if(M.cond.on)x.push(`<button class="mx" onclick="openInfo()">${esc(M.cond.title||'Como funciona o condicional')}</button>`);
+ if(M.insta.on&&igUser())x.push(`<a class="mx" href="https://instagram.com/${encodeURIComponent(igUser())}" target="_blank" rel="noopener">${IG}${esc(M.insta.title||'Instagram')} <small>@${esc(igUser())}</small></a>`);
+ if(M.wa.on)x.push(`<a class="mx wa" href="#" target="_blank" rel="noopener" onclick="this.href=waLink(waContext())">${WAI}${esc(M.wa.title||'Dúvidas? Fale no WhatsApp')}</a>`);
+ if(x.length)h+='<div class="msep"></div>'+x.join('');
+ m.innerHTML=h;m.hidden=!m.hidden;$('search').hidden=true;}
+function openInfo(){const M=DB.txt.menu.cond;$('menu').hidden=true;$('iTitle').textContent=M.title||'Como funciona o condicional';
+ $('iText').innerHTML=esc(M.text||'').split(/\n{2,}|\n/).filter(Boolean).map(l=>`<p>${l}</p>`).join('');go('info');}
 function toggleSearch(){const s=$('search');s.hidden=!s.hidden;$('menu').hidden=true;if(!s.hidden)$('q').focus();else{$('q').value='';renderGrid();}}
 
 /* painel */
@@ -99,28 +119,34 @@ function doLogin(btn){const pw=$('pw').value;if(!pw){$('pwErr').textContent='Dig
   logged=true;$('pw').value='';go('admin');},'Entrando…');}
 function logout(){sb.auth.signOut();logged=false;toHome();}
 function toHome(){history.replaceState(null,'',location.pathname);go('home');}
-function aTab(t){['p','h','t'].forEach(k=>{$('a'+k.toUpperCase()).hidden=k!==t;$('at'+k.toUpperCase()).classList.toggle('on',k===t);});if(t==='t')fillTxt();if(t==='h')renderHomeAdmin();}
+function aTab(t){['p','h','m','t'].forEach(k=>{$('a'+k.toUpperCase()).hidden=k!==t;$('at'+k.toUpperCase()).classList.toggle('on',k===t);});if(t==='t')fillTxt();if(t==='h')renderHomeAdmin();if(t==='m')fillMenu();}
+function fillMenu(){const M=DB.txt.menu;$('mPromoOn').checked=M.promo.on;$('mPromoT').value=M.promo.title;$('mCondOn').checked=M.cond.on;$('mCondT').value=M.cond.title;$('mCondX').value=M.cond.text;$('mIgOn').checked=M.insta.on;$('mIgT').value=M.insta.title;$('mIgU').value=M.insta.user?'@'+igUser():'';$('mWaOn').checked=M.wa.on;$('mWaT').value=M.wa.title;$('mErr').textContent='';}
+function saveMenu(btn){const M=DB.txt.menu,prev=JSON.stringify(M);
+ Object.assign(M.promo,{on:$('mPromoOn').checked,title:$('mPromoT').value.trim()||'Promoções'});Object.assign(M.cond,{on:$('mCondOn').checked,title:$('mCondT').value.trim()||'Como funciona o condicional',text:$('mCondX').value.trim()});
+ Object.assign(M.insta,{on:$('mIgOn').checked,title:$('mIgT').value.trim()||'Instagram',user:$('mIgU').value.trim()});Object.assign(M.wa,{on:$('mWaOn').checked,title:$('mWaT').value.trim()||'Dúvidas? Fale no WhatsApp'});
+ if(M.insta.on&&!igUser()){$('mErr').textContent='Escreva o @ do Instagram ou desligue esse item.';return;}
+ busy(btn,async()=>{try{await saveCfg();}catch(e){DB.txt.menu=JSON.parse(prev);throw e;}fillMenu();renderChips();toast('Menu salvo');});}
 function renderAdmin(){const P=DB.prods;$('stT').textContent=P.length;$('stE').textContent=P.filter(p=>p.out).length;$('stA').textContent=P.filter(p=>!p.out).length;
- $('aList').innerHTML=P.length?P.map(p=>`<div class="row"><img src="${img(p.imgs[0])||''}" alt=""><div class="n">${esc(p.n)}<small>${esc(p.brand)} · ${esc(p.cat)} · ${p.p?brl(p.p):'Sem preço'}</small></div><button class="st ${p.out?'no':'ok'}" onclick="toggleOut('${p.id}')" aria-label="Mudar disponibilidade">${p.out?'Esgotada':'Disponível'}</button><button class="ed" onclick="editP('${p.id}')" aria-label="Editar ${esc(p.n)}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A2E1E" stroke-width="1.8"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button></div>`).join('')
+ $('aList').innerHTML=P.length?P.map(p=>`<div class="row"><img src="${img(p.imgs[0])||''}" alt=""><div class="n">${esc(p.n)}${p.promo?' <span class="ptag in">PROMO</span>':''}<small>${esc(p.brand)} · ${esc(p.cat)} · ${p.p?brl(p.p):'Sem preço'}</small></div><button class="st ${p.out?'no':'ok'}" onclick="toggleOut('${p.id}')" aria-label="Mudar disponibilidade">${p.out?'Esgotada':'Disponível'}</button><button class="ed" onclick="editP('${p.id}')" aria-label="Editar ${esc(p.n)}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A2E1E" stroke-width="1.8"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button></div>`).join('')
   :'<div class="empty">Nenhuma peça cadastrada. Toque em “+ Nova peça” para começar.</div>';}
 function toggleOut(id){const p=byId(id);busy(null,async()=>{const {error}=await sb.from('produtos').update({esgotado:!p.out}).eq('id',id);if(error)throw error;p.out=!p.out;renderAdmin();toast(p.n+(p.out?' marcada como esgotada':' disponível de novo'));});}
 function editP(id){editing=id;const p=id?byId(id):{n:'',brand:allBrands()[0]||'',cat:'Vestidos',p:'',d:'',sizes:['P','M','G'],imgs:[],out:false};
  $('eTitle').textContent=id?'Editar peça':'Nova peça';$('eN').value=p.n;const bs=allBrands();if(p.brand&&!bs.includes(p.brand))bs.push(p.brand);$('eB').innerHTML=bs.map(b=>`<option ${b===p.brand?'selected':''}>${esc(b)}</option>`).join('')+'<option value="__outra">Outra marca…</option>';$('eBo').hidden=true;$('eBo').value='';$('eC').innerHTML=CATS.slice(1).map(c=>`<option ${c===p.cat?'selected':''}>${c}</option>`).join('');
- $('eP').value=p.p?p.p.toFixed(2).replace('.',','):'';$('eD').value=p.d;$('eE').checked=p.out;
+ $('eP').value=p.p?p.p.toFixed(2).replace('.',','):'';$('eD').value=p.d;$('eE').checked=p.out;$('ePr').checked=!!p.promo;$('eOld').value=p.old?p.old.toFixed(2).replace('.',','):'';$('eOldBox').hidden=!p.promo;
  ePhotos=[...p.imgs];eSizes=[...p.sizes];$('eErr').textContent='';$('eDel').hidden=!id;$('eDel').classList.remove('sure');$('eDel').textContent='Excluir peça';
  renderEPh();renderES();go('edit');}
 function renderEPh(){$('ePh').innerHTML=ePhotos.map((s,j)=>`<div><img src="${img(s)}" alt="Foto ${j+1}"><button type="button" class="x" onclick="ePhotos.splice(${j},1);renderEPh()" aria-label="Remover foto">✕</button>${j?`<button type="button" class="cv" onclick="ePhotos.unshift(ePhotos.splice(${j},1)[0]);renderEPh()">Usar como capa</button>`:'<span class="cv">Capa</span>'}<button type="button" class="adj" onclick="cropSrc(img(ePhotos[${j}]),3/4,d=>{ePhotos[${j}]=d;renderEPh();})">Ajustar</button></div>`).join('')+`<button type="button" class="add" onclick="$('eFile').click()"><b>+</b>Adicionar foto</button>`;}
 function renderES(){$('eS').innerHTML=SIZES.map(s=>`<button type="button" class="sz ${eSizes.includes(s)?'on':''}" style="${s==='Único'?'width:auto;padding:0 14px;border-radius:24px':''}" onclick="eSizes=eSizes.includes('${s}')?eSizes.filter(x=>x!=='${s}'):SIZES.filter(x=>eSizes.includes(x)||x==='${s}');renderES()">${s}</button>`).join('');}
 function _unused(files){[...files].forEach(f=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,700/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);ePhotos.push(c.toDataURL('image/jpeg',.78));renderEPh();};im.src=r.result;};r.readAsDataURL(f);});$('eFile').value='';}
-function saveP(btn){const n=$('eN').value.trim(),pr=parseFloat($('eP').value.replace(/\./g,'').replace(',','.'));
+function saveP(btn){const n=$('eN').value.trim(),pr=parseFloat($('eP').value.replace(/\./g,'').replace(',','.')),promo=$('ePr').checked,oldP=parseFloat($('eOld').value.replace(/\./g,'').replace(',','.'));
  const br=$('eB').value==='__outra'?$('eBo').value.trim():$('eB').value;
- const e=!ePhotos.length?'Adicione pelo menos uma foto.':!n?'Digite o nome da peça.':!br?'Escreva o nome da marca.':($('eP').value.trim()&&!(pr>0))?'Confira o preço, por exemplo 239,90. Ou deixe em branco.':'';
+ const e=!ePhotos.length?'Adicione pelo menos uma foto.':!n?'Digite o nome da peça.':!br?'Escreva o nome da marca.':($('eP').value.trim()&&!(pr>0))?'Confira o preço, por exemplo 239,90. Ou deixe em branco.':(promo&&$('eOld').value.trim()&&!(oldP>0))?'Confira o preço antigo, por exemplo 299,90.':(promo&&oldP>0&&pr>0&&oldP<=pr)?'O preço antigo precisa ser maior que o preço atual.':'';
  if(e){$('eErr').textContent=e;return;}
  busy(btn,async()=>{const old=editing?byId(editing).imgs:[];
   const imgs=await uploadAll(ePhotos);
-  const data={n,brand:br,cat:$('eC').value,p:pr>0?Math.round(pr*100)/100:null,d:$('eD').value.trim(),sizes:eSizes,imgs,out:$('eE').checked};
-  if(editing){const {error}=await sb.from('produtos').update(toRow(data)).eq('id',editing);if(error)throw error;Object.assign(byId(editing),data);removeFiles(old.filter(u=>!imgs.includes(u)));}
-  else{const {data:row,error}=await sb.from('produtos').insert(toRow(data)).select().single();if(error)throw error;DB.prods.unshift(fromRow(row));}
+  const data={n,brand:br,cat:$('eC').value,p:pr>0?Math.round(pr*100)/100:null,d:$('eD').value.trim(),sizes:eSizes,imgs,out:$('eE').checked,promo,old:promo&&oldP>0?Math.round(oldP*100)/100:null};
+  if(editing){let {error}=await sb.from('produtos').update(toRow(data)).eq('id',editing);if(noPromoCols(error)){({error}=await sb.from('produtos').update(rowNoPromo(data)).eq('id',editing));if(!error)toast('Peça salva, mas a promoção precisa da atualização do banco');}if(error)throw error;Object.assign(byId(editing),data);removeFiles(old.filter(u=>!imgs.includes(u)));}
+  else{let {data:row,error}=await sb.from('produtos').insert(toRow(data)).select().single();if(noPromoCols(error)){({data:row,error}=await sb.from('produtos').insert(rowNoPromo(data)).select().single());}if(error)throw error;DB.prods.unshift({...fromRow(row),promo:data.promo,old:data.old});}
   go('admin');toast(editing?'Peça atualizada':'Peça cadastrada');},ePhotos.some(s=>s.startsWith('data:'))?'Enviando fotos…':'Salvando…');}
 function delP(b){if(!b.classList.contains('sure')){b.classList.add('sure');b.textContent='Toque de novo para excluir';return;}
  busy(b,async()=>{const p=byId(editing);const {error}=await sb.from('produtos').delete().eq('id',editing);if(error)throw error;
@@ -161,7 +187,7 @@ function blockHTML(b){const e=esc;switch(b.t){
  case 'banner':return b.img?`<button class="hero" onclick="linkGo('${b.link||''}')"><img src="${img(b.img)}" alt=""><div class="t">${b.sub?`<p class="eyebrow">${e(b.sub)}</p>`:''}<h2>${e(b.title||'')}</h2>${b.link&&b.btn?`<span class="hbtn">${e(b.btn)} ›</span>`:''}</div></button>`:'';
  case 'brands':{const L=brandsList(b);return L.length?`${b.title?`<p class="eyebrow" style="text-align:center;margin-top:18px">${e(b.title)}</p>`:''}<div class="brands">${L.map((n,i)=>`<button class="brand ${['is','jd'][i%2]}" data-brand="${e(n)}" onclick="pickBrand(this)">${i%2?e(n):e(n.toUpperCase())}</button>`).join('')}</div>`:'';}
  case 'cond':return `<div class="cond"><p class="eyebrow" style="color:#C9A46A">Condicional</p><h3>${e(b.title||'')}</h3><p>${e(b.text||'')}</p><div class="steps"><div><b>1</b>Escolha</div><div><b>2</b>Experimente</div><div><b>3</b>Fique com o que amar</div></div><div class="where"><span>${PIN}Atendimento em Pontalina e região</span><span>${BOX}Enviamos para todo o Brasil</span></div><button class="cta" onclick="askCond()">${e(b.btn||'Quero meu condicional')}</button></div>`;
- case 'shelf':{const L=shelfItems(b);return L.length?`<div class="sec"><h3>${e(b.title||'')}</h3></div><div class="shelf">${L.map(p=>`<button class="card" onclick="openP('${p.id}')"><div class="ph"><img src="${img(p.imgs[0])}" alt="${e(p.n)}"></div><p>${e(p.n)}</p><b>${price(p.p)}</b></button>`).join('')}</div>`:'';}
+ case 'shelf':{const L=shelfItems(b);return L.length?`<div class="sec"><h3>${e(b.title||'')}</h3></div><div class="shelf">${L.map(p=>`<button class="card" onclick="openP('${p.id}')"><div class="ph"><img src="${img(p.imgs[0])}" alt="${e(p.n)}">${promoTag(p)}</div><p>${e(p.n)}</p><b>${cardPrice(p)}</b></button>`).join('')}</div>`:'';}
  case 'notice':return b.text?`<div class="notice ${b.style||'gold'}">${e(b.text)}</div>`:'';
  case 'text':return `<div class="tblock">${b.title?`<h3>${e(b.title)}</h3>`:''}${b.text?`<p>${e(b.text).replace(/\n/g,'<br>')}</p>`:''}</div>`;
  case 'catalog':return `<div class="sec" style="margin-top:26px"><h3>${e(b.title||'Todas as peças')}</h3></div><div class="chips" id="chips"></div><div class="sec" style="margin-top:14px"><h3 id="secT" style="font-size:20px"></h3><span class="eyebrow" id="secN"></span></div><div class="grid" id="grid"></div>`;}}

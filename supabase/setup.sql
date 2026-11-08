@@ -53,3 +53,7 @@ create policy "todos veem fotos" on storage.objects for select using (bucket_id 
 create policy "loja envia fotos" on storage.objects for insert to authenticated with check (bucket_id = 'fotos');
 create policy "loja altera fotos" on storage.objects for update to authenticated using (bucket_id = 'fotos');
 create policy "loja apaga fotos" on storage.objects for delete to authenticated using (bucket_id = 'fotos');
+
+-- Promoções (rode também se o banco já existia)
+alter table public.produtos add column if not exists promocao boolean default false;
+alter table public.produtos add column if not exists preco_antigo numeric(10,2);

@@ -115,7 +115,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .adm{padding-bottom:60px!important}
 .ahdr{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:calc(18px + env(safe-area-inset-top,0px)) 14px;border-bottom:1px solid #EADBC6;background:var(--bg);position:sticky;top:0;z-index:4}
 .pill{font-size:13px;padding:8px 14px;border-radius:18px;border:1px solid #C9A46A;color:var(--ink);white-space:nowrap}
-.atabs{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--sand);border-radius:16px;padding:4px;margin:16px 0}
+.atabs{display:grid;grid-template-columns:repeat(4,1fr);background:var(--sand);border-radius:16px;padding:4px;margin:16px 0}
 .atabs button{height:40px;border-radius:12px;font-size:14px;color:var(--gold2)}
 .atabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(74,46,30,.12)}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -189,3 +189,17 @@ textarea.in{resize:vertical;line-height:1.5}
 .bimg{height:auto!important;aspect-ratio:4/3}
 
 .ask{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:var(--wa);border:1px solid var(--wa);border-radius:16px;padding:6px 12px;margin:12px 0 0 6px;text-decoration:none}
+
+.msep{height:8px;background:var(--sand)}
+.menu .mx{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:14px max(20px,env(safe-area-inset-left,0px));font-family:var(--sans);font-size:16px;border-top:1px solid #F0E4D3;color:var(--ink);text-decoration:none}
+.menu .mx small{color:var(--gold2);font-size:12px}
+.menu .mx.promo{color:#A3402F;font-weight:500}
+.menu .mx.wa{color:var(--wa)}
+.chip.promo{border-color:#C46A55;color:#A3402F}.chip.promo.on{background:#A3402F;color:#fff;border-color:#A3402F}
+.ptag{position:absolute;left:8px;top:8px;background:#A3402F;color:#fff;font-size:10px;letter-spacing:1.5px;padding:4px 8px;border-radius:10px}
+.ptag.in{position:static;font-size:9px;padding:2px 6px;vertical-align:2px}
+s.old{color:#9B8571;font-weight:400;font-size:.9em;margin-right:4px}
+.itext p{font-size:16px;line-height:1.65;color:#5a3d2b;margin-bottom:12px;max-width:60ch}
+.mcard{background:#fff;border:1px solid #EADBC6;border-radius:18px;padding:4px 16px 16px;margin-top:12px}
+.mcard .sw{margin-top:12px}.mcard .sw b{font-weight:500}
+.hint{font-size:12px;color:var(--gold2);margin-top:8px;line-height:1.45}

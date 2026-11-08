@@ -59,6 +59,16 @@
  <div class="bar"><button class="cta" onclick="addBag()">Colocar na sacola</button></div>
 </section>
 
+<section class="view" id="info">
+ <div class="pad" style="padding-top:calc(20px + env(safe-area-inset-top,0px))">
+  <button onclick="go('home')" style="font-size:14px;color:var(--gold2);display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>Voltar ao catálogo</button>
+  <p class="eyebrow" style="margin-top:22px;color:#C9A46A">Condicional</p>
+  <h2 class="ser" id="iTitle" style="font-size:38px;font-weight:500;line-height:1.05;margin:4px 0 16px;text-wrap:balance"></h2>
+  <div class="itext" id="iText"></div>
+  <button class="cta wa" style="margin-top:24px" onclick="askCond()">Quero meu condicional</button>
+ </div>
+</section>
+
 <section class="view" id="bag">
  <div class="pad" style="padding-top:calc(20px + env(safe-area-inset-top,0px))">
   <button onclick="go('home')" style="font-size:14px;color:var(--gold2);display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>Continuar comprando</button>
@@ -95,7 +105,26 @@
   <div style="display:flex;gap:8px"><button class="pill" onclick="toHome()">Ver catálogo</button><button class="pill" onclick="logout()">Sair</button></div>
  </div>
  <div class="pad">
-  <div class="atabs"><button id="atP" class="on" onclick="aTab('p')">Peças</button><button id="atH" onclick="aTab('h')">Tela inicial</button><button id="atT" onclick="aTab('t')">Loja</button></div>
+  <div class="atabs"><button id="atP" class="on" onclick="aTab('p')">Peças</button><button id="atH" onclick="aTab('h')">Início</button><button id="atM" onclick="aTab('m')">Menu</button><button id="atT" onclick="aTab('t')">Loja</button></div>
+  <div id="aM" hidden>
+   <p style="font-size:14px;line-height:1.5;color:#6b4a33;margin-bottom:6px">Escolha o que aparece no menu ☰ do catálogo, abaixo das categorias.</p>
+   <form class="fm" onsubmit="event.preventDefault();saveMenu(this.querySelector('.cta'))">
+    <div class="mcard"><label class="sw"><input type="checkbox" id="mPromoOn"><span></span><b>Promoções</b></label>
+     <label class="lb" for="mPromoT">Nome no menu</label><input class="in" id="mPromoT">
+     <p class="hint">Mostra as peças marcadas como “Em promoção” no cadastro da peça.</p></div>
+    <div class="mcard"><label class="sw"><input type="checkbox" id="mCondOn"><span></span><b>Como funciona o condicional</b></label>
+     <label class="lb" for="mCondT">Título</label><input class="in" id="mCondT">
+     <label class="lb" for="mCondX">Explicação <small>(cada linha vira um parágrafo)</small></label><textarea class="in" id="mCondX" rows="6"></textarea></div>
+    <div class="mcard"><label class="sw"><input type="checkbox" id="mIgOn"><span></span><b>Instagram</b></label>
+     <label class="lb" for="mIgT">Nome no menu</label><input class="in" id="mIgT">
+     <label class="lb" for="mIgU">@ do Instagram</label><input class="in" id="mIgU" placeholder="@werikamendonca" autocapitalize="off"></div>
+    <div class="mcard"><label class="sw"><input type="checkbox" id="mWaOn"><span></span><b>Dúvidas (WhatsApp)</b></label>
+     <label class="lb" for="mWaT">Nome no menu</label><input class="in" id="mWaT">
+     <p class="hint">A mensagem já vai com a peça que a cliente estava vendo e o que tem na sacola.</p></div>
+    <p class="err" id="mErr"></p>
+    <button class="cta" type="submit">Salvar menu</button>
+   </form>
+  </div>
   <div id="aH" hidden>
    <p style="font-size:14px;line-height:1.5;color:#6b4a33;margin-bottom:14px">Monte a tela inicial do seu jeito. Use ▲ ▼ para mudar a ordem e toque no lápis para editar.</p>
    <div id="hList" style="display:flex;flex-direction:column;gap:10px"></div>
@@ -166,6 +195,8 @@
   <span class="lb">Tamanhos disponíveis</span>
   <div class="sizes" id="eS" style="flex-wrap:wrap"></div>
   <label class="lb" for="eD">Descrição</label><textarea class="in" id="eD" rows="3" placeholder="Tecido, caimento, detalhes..."></textarea>
+  <label class="sw"><input type="checkbox" id="ePr" onchange="$('eOldBox').hidden=!this.checked"><span></span>Em promoção</label>
+  <div id="eOldBox" hidden><label class="lb" for="eOld">Preço antes da promoção <small>(opcional, aparece riscado)</small></label><input class="in" id="eOld" inputmode="decimal" placeholder="299,90"></div>
   <label class="sw"><input type="checkbox" id="eE"><span></span>Peça esgotada</label>
   <p class="err" id="eErr"></p>
   <button class="cta" type="submit">Salvar peça</button>
