@@ -3,8 +3,8 @@
 Catálogo online (moda feminina, Pontalina - GO) com painel para a loja cadastrar peças,
 fotos, preços e montar a tela inicial. Pedidos e condicional vão pelo WhatsApp.
 
-- **Catálogo:** `https://SEU-SITE.vercel.app`
-- **Painel da loja:** `https://SEU-SITE.vercel.app/#admin` (ou "Área da loja" no rodapé)
+- **Catálogo:** `https://werika-closet.vercel.app`
+- **Painel da loja:** `https://werika-closet.vercel.app/#admin` (link direto, não aparece no catálogo)
 
 Site estático (HTML, CSS e JS puro), sem build. Dados no Supabase.
 
