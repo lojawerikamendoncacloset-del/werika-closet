@@ -206,3 +206,8 @@ s.old{color:#9B8571;font-weight:400;font-size:.9em;margin-right:4px}
 .paylist{display:flex;flex-direction:column;gap:10px}.payrow{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid #EADBC6;border-radius:16px;padding:16px;font-size:16px;color:var(--ink)}
 .wm .marca{display:block;height:78px;width:auto;max-width:100%}
 .hdr{padding-block:6px!important}
+.brand{background:#F3E9DC!important;color:var(--ink)!important;border:1.5px solid #E6D6C0!important;letter-spacing:0!important;font-size:inherit!important;padding:0 14px}
+.brand.sel{border-color:#B08A4F!important}
+.brand .blogo{display:block;max-width:100%;max-height:30px;width:auto;height:auto;margin:0 auto}
+.brand .blogo[src*="jean"]{max-height:19px}
+.brand .btxt{font-family:var(--serif);font-size:22px;font-style:italic}

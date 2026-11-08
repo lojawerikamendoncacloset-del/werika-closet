@@ -179,6 +179,7 @@ function defHome(){return[
   {id:'h3',t:'cond',on:true,title:'Peça seu condicional',text:'Eu levo os looks até você para experimentar com toda tranquilidade, conforto e praticidade.',btn:'Quero meu condicional'},
  {id:'h4',t:'notice',on:true,text:'Enviamos para todo o Brasil',style:'gold'},
  {id:'h5',t:'catalog',on:true,title:'Todas as peças'}];}
+const BRAND_LOGOS={'isleva':'/img/marca-isleva.png','jean darrot':'/img/marca-jean-darrot.png','jeandarrot':'/img/marca-jean-darrot.png'};
 const PIN='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A46A" stroke-width="1.8"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
 const BOX='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A46A" stroke-width="1.8"><path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/></svg>';
 const brandsList=b=>String(b.list||'').split('\n').map(s=>s.trim()).filter(Boolean);
@@ -190,7 +191,7 @@ function linkGo(l){if(!l)return;const v=l.slice(2);
 function pickBrandName(){document.querySelectorAll('.brand').forEach(x=>x.classList.toggle('sel',x.dataset.brand===brand));renderChips();renderGrid();$('secT').scrollIntoView({behavior:'smooth',block:'start'});}
 function blockHTML(b){const e=esc;switch(b.t){
  case 'banner':return b.img?`<button class="hero" onclick="linkGo('${b.link||''}')"><img src="${img(b.img)}" alt=""><div class="t">${b.sub?`<p class="eyebrow">${e(b.sub)}</p>`:''}<h2>${e(b.title||'')}</h2>${b.link&&b.btn?`<span class="hbtn">${e(b.btn)} ›</span>`:''}</div></button>`:'';
- case 'brands':{const L=brandsList(b);return L.length?`${b.title?`<p class="eyebrow" style="text-align:center;margin-top:18px">${e(b.title)}</p>`:''}<div class="brands">${L.map((n,i)=>`<button class="brand ${['is','jd'][i%2]}" data-brand="${e(n)}" onclick="pickBrand(this)">${i%2?e(n):e(n.toUpperCase())}</button>`).join('')}</div>`:'';}
+ case 'brands':{const L=brandsList(b);return L.length?`${b.title?`<p class="eyebrow" style="text-align:center;margin-top:18px">${e(b.title)}</p>`:''}<div class="brands">${L.map(n=>{const lg=BRAND_LOGOS[n.toLowerCase().replace(/\s+/g,' ').trim()];return `<button class="brand" data-brand="${e(n)}" onclick="pickBrand(this)" aria-label="${e(n)}">${lg?`<img src="${lg}" alt="${e(n)}" class="blogo">`:`<span class="btxt">${e(n)}</span>`}</button>`}).join('')}</div>`:'';}
  case 'cond':return `<div class="cond"><p class="eyebrow" style="color:#C9A46A">Condicional</p><h3>${e(b.title||'')}</h3><p>${e(b.text||'')}</p><div class="steps"><div><b>1</b>Escolha</div><div><b>2</b>Experimente</div><div><b>3</b>Fique com o que amar</div></div><div class="where"><span>${PIN}Atendimento em Pontalina e região</span><span>${BOX}Enviamos para todo o Brasil</span></div><button class="cta" onclick="askCond()">${e(b.btn||'Quero meu condicional')}</button></div>`;
  case 'shelf':{const L=shelfItems(b);return L.length?`<div class="sec"><h3>${e(b.title||'')}</h3></div><div class="shelf">${L.map(p=>`<button class="card" onclick="openP('${p.id}')"><div class="ph"><img src="${img(p.imgs[0])}" alt="${e(p.n)}">${promoTag(p)}</div><p>${e(p.n)}</p><b>${cardPrice(p)}</b></button>`).join('')}</div>`:'';}
  case 'notice':return b.text?`<div class="notice ${b.style||'gold'}">${e(b.text)}</div>`:'';
