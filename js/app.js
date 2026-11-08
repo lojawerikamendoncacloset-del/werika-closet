@@ -2,7 +2,7 @@
 /* Werika Mendonça Closet — catálogo + painel
    Dados no Supabase (tabelas produtos e config, bucket fotos). Configuração em js/config.js */
 const sb=supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey);
-const CATS=['Novidades','Vestidos','Blusas','Calças','Saias','Conjuntos'];
+const CATS=['Novidades','Vestidos','Blusas','Camisas','Calças','Bermudas','Saias','Conjuntos','Jaquetas','Blazers','Coletes'];
 const SIZES=['PP','P','M','G','GG','Único'];
 const DEF_MENU={promo:{on:true,title:'Promoções'},cond:{on:true,title:'Como funciona o condicional',text:'1. Escolha as peças que você quer experimentar e me chame no WhatsApp.\n2. Eu levo os looks até você, em Pontalina e região.\n3. Experimente com calma, no conforto da sua casa.\n4. Fique com o que amar e devolva o restante.'},insta:{on:true,title:'Instagram',user:'werikamendonca'},wa:{on:true,title:'Dúvidas? Fale no WhatsApp'}};
 const DEF_TXT={ann:'Peça seu condicional · Enviamos para todo o Brasil',pa:'',wa:'5564992071978'};
