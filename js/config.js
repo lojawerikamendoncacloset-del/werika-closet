@@ -1,7 +1,7 @@
-/* Configuração do catálogo — preencha com os dados do projeto no Supabase
-   (Supabase > Project Settings > API) */
+/* Configuração do catálogo (Supabase > Project Settings > API Keys).
+   A chave publishable pode ficar no site; a secret NUNCA vai aqui. */
 window.CFG = {
-  supabaseUrl: 'COLE_AQUI_A_PROJECT_URL',
-  supabaseKey: 'COLE_AQUI_A_CHAVE_ANON_PUBLIC',
-  adminEmail: 'COLE_AQUI_O_EMAIL_DO_LOGIN_DA_WERIKA'
+  supabaseUrl: 'https://didkofbjdbmrnejqilge.supabase.co',
+  supabaseKey: 'sb_publishable_-P1kux27Yh6XnsH5Lq995A__z1pz3Yr',
+  adminEmail: 'werikamendonca@admin.com'
 };
