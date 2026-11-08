@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Werika Mendonça Closet</title>
+<meta name="description" content="Moda feminina em Pontalina - GO. Peça seu condicional ou receba em todo o Brasil. Isleva e Jean Darrot.">
+<meta name="theme-color" content="#FBF6EE">
+<meta property="og:title" content="Werika Mendonça Closet">
+<meta property="og:description" content="Moda feminina · Peça seu condicional · Enviamos para todo o Brasil">
+<meta property="og:image" content="/img/og.jpg">
+<meta property="og:type" content="website">
+<link rel="icon" href="/img/icon.png">
+<link rel="apple-touch-icon" href="/img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Jost:wght@400;500&family=Pinyon+Script&display=swap">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="app">
+
+<section class="view on" id="home">
+ <div class="ann pad" id="annT"></div>
+ <header class="hdr pad">
+  <button class="hb" onclick="toggleMenu()" aria-label="Menu"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <div class="wm" onclick="pickCat('Novidades')"><span class="w1">Werika</span><span class="w2">Mendonça</span><span class="w3">CLOSET</span></div>
+  <div style="display:flex;gap:4px">
+   <button class="hb" onclick="toggleSearch()" aria-label="Buscar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+   <button class="hb" onclick="go('bag')" aria-label="Abrir sacola" style="position:relative"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="badge" data-cnt>0</span></button>
+  </div>
+ </header>
+ <div class="search pad" id="search" hidden><input id="q" type="search" placeholder="Buscar vestido, blusa..." oninput="renderGrid()"></div>
+ <div class="menu" id="menu" hidden></div>
+ <div class="pad">
+  <div id="blocks"><div class="empty" style="margin-top:24px">Carregando as peças…</div></div>
+  <a id="condWa" href="#" target="_blank" rel="noopener" hidden></a>
+  <p class="foot">Werika Mendonça Closet · Pontalina - GO<br>Pedidos pelo WhatsApp <span id="footWa"></span><br><button onclick="openAdmin()" style="margin-top:10px"><a>Área da loja</a></button></p>
+ </div>
+</section>
+
+<section class="view" id="prod">
+ <div class="big"><img id="bigImg" src="" alt="">
+  <button class="round" style="left:max(14px,env(safe-area-inset-left,0px))" onclick="go('home')" aria-label="Voltar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4A2E1E" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button class="round" style="right:max(14px,env(safe-area-inset-right,0px))" onclick="go('bag')" aria-label="Abrir sacola"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4A2E1E" stroke-width="1.6"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="badge" data-cnt>0</span></button>
+  <div class="thumbs" id="thumbs"></div>
+ </div>
+ <div class="sheet pad">
+  <p class="eyebrow" id="pCat"></p>
+  <h2 id="pName"></h2>
+  <p class="price" id="pPrice"></p>
+  <p class="desc" id="pDesc"></p>
+  <span class="tag" id="condTag"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A46A" stroke-width="1.8"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Pode pedir no condicional</span>
+  <p class="eyebrow" style="margin-top:18px;color:var(--ink)">Tamanho</p>
+  <div class="sizes" id="sizes"></div>
+  <p class="err" id="err"></p>
+ </div>
+ <div class="bar"><button class="cta" onclick="addBag()">Colocar na sacola</button></div>
+</section>
+
+<section class="view" id="bag">
+ <div class="pad" style="padding-top:calc(20px + env(safe-area-inset-top,0px))">
+  <button onclick="go('home')" style="font-size:14px;color:var(--gold2);display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>Continuar comprando</button>
+  <h2 class="ser" style="font-size:40px;font-weight:500;margin:14px 0 18px">Sua sacola</h2>
+  <div id="items" style="display:flex;flex-direction:column;gap:12px"></div>
+  <div id="modeBox"><p class="eyebrow" style="margin-top:24px;color:var(--ink)">Como você quer receber?</p>
+  <div class="mode"><button id="mC" onclick="setMode('c')"><b>Condicional</b><small>Levo até você para experimentar · Pontalina e região</small></button><button id="mB" onclick="setMode('b')"><b>Comprar</b><small>Enviamos para todo o Brasil</small></button></div></div>
+ </div>
+ <div class="bar" id="bagBar">
+  <div class="total"><span>Total</span><span id="tot"></span></div>
+  <a class="cta wa" id="waBtn" href="#" target="_blank" rel="noopener"><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/></svg><span id="waTxt">Pedir condicional pelo WhatsApp</span></a>
+ </div>
+</section>
+
+<section class="view adm" id="login">
+ <div class="pad" style="padding-top:calc(60px + env(safe-area-inset-top,0px));text-align:center">
+  <div class="wm" style="display:inline-flex"><span class="w1">Werika</span><span class="w2">Mendonça</span><span class="w3">CLOSET</span></div>
+  <h2 class="ser" style="font-size:32px;font-weight:500;margin:28px 0 6px">Área da loja</h2>
+  <p style="font-size:14px;color:var(--gold2)">Entre para cadastrar e editar as peças.</p>
+  <form onsubmit="event.preventDefault();doLogin(this.querySelector('.cta'))" style="margin-top:26px;text-align:left">
+   <label class="lb" for="pw">Senha</label>
+   <input class="in" id="pw" type="password" autocomplete="current-password" placeholder="Sua senha" oninput="$('pwErr').textContent=''">
+   <p class="err" id="pwErr"></p>
+   <button class="cta" type="submit" style="margin-top:6px">Entrar</button>
+  </form>
+  <p style="font-size:12px;color:var(--gold2);margin-top:16px">Esqueceu a senha? Fale com o Marcos para criar uma nova.</p>
+  <button onclick="toHome()" style="font-size:14px;margin-top:22px;color:var(--ink);text-decoration:underline">Voltar ao catálogo</button>
+ </div>
+</section>
+
+<section class="view adm" id="admin">
+ <div class="ahdr pad">
+  <div><p class="eyebrow">Painel</p><h2 class="ser" style="font-size:30px;font-weight:500;line-height:1">Werika Closet</h2></div>
+  <div style="display:flex;gap:8px"><button class="pill" onclick="toHome()">Ver catálogo</button><button class="pill" onclick="logout()">Sair</button></div>
+ </div>
+ <div class="pad">
+  <div class="atabs"><button id="atP" class="on" onclick="aTab('p')">Peças</button><button id="atH" onclick="aTab('h')">Tela inicial</button><button id="atT" onclick="aTab('t')">Loja</button></div>
+  <div id="aH" hidden>
+   <p style="font-size:14px;line-height:1.5;color:#6b4a33;margin-bottom:14px">Monte a tela inicial do seu jeito. Use ▲ ▼ para mudar a ordem e toque no lápis para editar.</p>
+   <div id="hList" style="display:flex;flex-direction:column;gap:10px"></div>
+   <button class="cta" onclick="showPick()" style="margin-top:14px">+ Adicionar bloco</button>
+   <div id="bPick" class="pick" hidden></div>
+   <button class="pill" style="margin-top:14px;width:100%;height:44px" onclick="toHome()">Ver como ficou</button>
+  </div>
+  <div id="aP">
+   <div class="stats"><div><b id="stT">0</b>peças</div><div><b id="stA">0</b>disponíveis</div><div><b id="stE">0</b>esgotadas</div></div>
+   <button class="cta" onclick="editP(null)" style="margin:14px 0 16px">+ Nova peça</button>
+   <div id="aList" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+  <div id="aT" hidden>
+   <form onsubmit="event.preventDefault();saveTxt(this.querySelector('.cta'))" class="fm">
+    <label class="lb" for="tAnn">Faixa do topo</label><input class="in" id="tAnn">
+    <label class="lb" for="tPa">Parcelamento</label><input class="in" id="tPa" placeholder="até 3x sem juros">
+    <label class="lb" for="tWa">WhatsApp que recebe os pedidos</label><input class="in" id="tWa" inputmode="tel" placeholder="(64) 99207-1978">
+    <p class="err" id="tErr"></p>
+    <button class="cta" type="submit">Salvar</button>
+   </form>
+   <form onsubmit="event.preventDefault();savePw(this.querySelector('.cta'))" class="fm" style="margin-top:10px;border-top:1px solid #EADBC6">
+    <p class="ser" style="font-size:22px;margin-top:6px">Trocar senha do painel</p>
+    <label class="lb" for="np1">Nova senha</label><input class="in" id="np1" type="password" autocomplete="new-password" placeholder="Mínimo 6 caracteres">
+    <label class="lb" for="np2">Repita a nova senha</label><input class="in" id="np2" type="password" autocomplete="new-password">
+    <p class="err" id="pErr"></p>
+    <button class="cta" type="submit">Trocar senha</button>
+   </form>
+  </div>
+  <p class="note">Tudo o que você salva aqui aparece na hora para todas as clientes.</p>
+ </div>
+</section>
+
+<section class="view adm" id="bedit">
+ <div class="ahdr pad">
+  <button class="pill" onclick="go('admin');aTab('h')">‹ Voltar</button>
+  <h2 class="ser" id="bTitle" style="font-size:24px;font-weight:500">Bloco</h2>
+  <span style="width:70px"></span>
+ </div>
+ <div class="pad">
+  <form class="fm" onsubmit="event.preventDefault();saveB(this.querySelector('.cta'))" oninput="readB();$('bPrev').innerHTML=blockHTML(bEd)||''" onchange="readB();$('bPrev').innerHTML=blockHTML(bEd)||''">
+   <div id="bForm"></div>
+   <input type="file" id="bFile" accept="image/*" hidden onchange="pickFiles(this.files,4/3,d=>{bEd.img=d;openBEdKeep();});this.value=''">
+   <span class="lb" style="margin-top:22px">Como fica na tela</span>
+   <div class="prevbox" id="bPrev"></div>
+   <p class="err" id="bErr"></p>
+   <button class="cta" type="submit">Salvar bloco</button>
+   <button type="button" class="del" id="bDel" onclick="delB(this)">Apagar bloco</button>
+  </form>
+ </div>
+</section>
+
+<section class="view adm" id="edit">
+ <div class="ahdr pad">
+  <button class="pill" onclick="go('admin')">‹ Voltar</button>
+  <h2 class="ser" id="eTitle" style="font-size:26px;font-weight:500">Nova peça</h2>
+  <span style="width:70px"></span>
+ </div>
+ <form class="fm pad" onsubmit="event.preventDefault();saveP(this.querySelector('.cta'))">
+  <span class="lb">Fotos <small>(a primeira é a capa)</small></span>
+  <div class="phs" id="ePh"></div>
+  <input type="file" id="eFile" accept="image/*" multiple hidden onchange="pickFiles(this.files,3/4,d=>{ePhotos.push(d);renderEPh();});this.value=''">
+  <label class="lb" for="eN">Nome da peça</label><input class="in" id="eN" placeholder="Vestido Midi Verde">
+  <div class="two">
+   <div><label class="lb" for="eB">Marca</label><select class="in" id="eB" onchange="$('eBo').hidden=this.value!=='__outra';if(!$('eBo').hidden)$('eBo').focus()"></select><input class="in" id="eBo" placeholder="Nome da marca" style="margin-top:8px" hidden></div>
+   <div><label class="lb" for="eC">Categoria</label><select class="in" id="eC"></select></div>
+  </div>
+  <label class="lb" for="eP">Preço <small>(opcional)</small></label><input class="in" id="eP" inputmode="decimal" placeholder="Deixe em branco para “Consulte”">
+  <span class="lb">Tamanhos disponíveis</span>
+  <div class="sizes" id="eS" style="flex-wrap:wrap"></div>
+  <label class="lb" for="eD">Descrição</label><textarea class="in" id="eD" rows="3" placeholder="Tecido, caimento, detalhes..."></textarea>
+  <label class="sw"><input type="checkbox" id="eE"><span></span>Peça esgotada</label>
+  <p class="err" id="eErr"></p>
+  <button class="cta" type="submit">Salvar peça</button>
+  <button type="button" class="del" id="eDel" onclick="delP(this)">Excluir peça</button>
+ </form>
+</section>
+
+<nav class="tabs" aria-label="Navegação">
+ <button class="tab on" data-t="home" onclick="tabHome()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-6h4v6"/></svg>Início</button>
+ <button class="tab" data-t="cats" onclick="tabCats()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 4a2 2 0 0 1 2 2c0 1-1 1.5-2 2.2L3 15h18l-9-6.8"/><path d="M3 15v1h18v-1"/></svg>Categorias</button>
+ <button class="tab" data-t="search" onclick="tabSearch()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Buscar</button>
+ <button class="tab" data-t="bag" onclick="go('bag')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="badge" data-cnt>0</span>Sacola</button>
+ <a class="tab wa" id="waTab" href="https://wa.me/5564992071978" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.6-2-1-1 .9a5 5 0 0 1-2.8-2.8l.9-1-1-2z"/></svg>WhatsApp</a>
+</nav>
+<div class="crop" id="crop" hidden>
+ <div class="pad" style="padding-block:calc(16px + env(safe-area-inset-top,0px)) 0;display:flex;justify-content:space-between;align-items:center">
+  <button class="pill" style="color:#F3E6D6;border-color:#8A6534" onclick="skipCrop()">Cancelar</button><span id="cStep" style="font-size:14px"></span><span style="width:76px"></span></div>
+ <p class="pad" style="font-size:13px;text-align:center;color:#CDBBA4;margin:14px 0">Arraste a foto para enquadrar a peça</p>
+ <div class="pad"><div class="cframe" id="cFrame" onpointerdown="cDown(event)" onpointermove="cMove(event)" onpointerup="cUp()" onpointercancel="cUp()"><img id="cImgEl" alt="" draggable="false"><div class="cgrid"></div></div></div>
+ <div class="pad" style="display:flex;align-items:center;gap:12px;margin-top:18px"><span style="font-size:18px">−</span><input type="range" id="cZoom" min="1" max="3" step="0.01" value="1" oninput="zoomCrop(this.value)" style="flex:1" aria-label="Zoom"><span style="font-size:18px">+</span></div>
+ <div class="pad" style="margin-top:18px;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))"><button class="cta" style="background:#C9A46A;color:#1E1A17" onclick="useCrop()">Usar foto</button></div>
+</div>
+<div class="toast" id="toast"></div>
+</div>
+
+
+<script src="/js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
