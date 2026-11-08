@@ -4,7 +4,7 @@
 const sb=supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey);
 const CATS=['Novidades','Vestidos','Blusas','Camisas','Calças','Bermudas','Saias','Conjuntos','Jaquetas','Blazers','Coletes'];
 const SIZES=['PP','P','M','G','GG','Único'];
-const DEF_MENU={promo:{on:true,title:'Promoções'},cond:{on:true,title:'Como funciona o condicional',text:'1. Escolha as peças que você quer experimentar e me chame no WhatsApp.\n2. Eu levo os looks até você, em Pontalina e região.\n3. Experimente com calma, no conforto da sua casa.\n4. Fique com o que amar e devolva o restante.'},insta:{on:true,title:'Instagram',user:'werikamendonca'},wa:{on:true,title:'Dúvidas? Fale no WhatsApp'}};
+const DEF_MENU={promo:{on:true,title:'Promoções'},cond:{on:true,title:'Como funciona o condicional',text:'1. Escolha as peças que você quer experimentar e me chame no WhatsApp.\n2. Eu levo os looks até você, em Pontalina e região.\n3. Experimente com calma, no conforto da sua casa.\n4. Fique com o que amar e devolva o restante.'},pay:{on:true,title:'Formas de pagamento',text:'Pix\nDinheiro\nCartão de crédito em até 7x sem juros'},insta:{on:true,title:'Instagram',user:'werikamendonca'},wa:{on:true,title:'Dúvidas? Fale no WhatsApp'}};
 const DEF_TXT={ann:'Peça seu condicional · Enviamos para todo o Brasil',pa:'',wa:'5564992071978'};
 let DB={prods:[],txt:{...DEF_TXT},home:null};
 const img=s=>s||'';
@@ -102,13 +102,18 @@ function toggleMenu(){const m=$('menu'),M=DB.txt.menu;
  let h=`<button class="mx" onclick="pickCat('Novidades');$('chips').scrollIntoView({behavior:'smooth',block:'center'})">Ver todas as peças</button>`;
  const x=[];
  if(M.promo.on&&DB.prods.some(p=>p.promo&&!p.out))x.push(`<button class="mx promo" onclick="pickCat('__promo');$('secT').scrollIntoView({behavior:'smooth'})">${esc(M.promo.title||'Promoções')}</button>`);
- if(M.cond.on)x.push(`<button class="mx" onclick="openInfo()">${esc(M.cond.title||'Como funciona o condicional')}</button>`);
+ if(M.cond.on)x.push(`<button class="mx" onclick="openInfo('cond')">${esc(M.cond.title||'Como funciona o condicional')}</button>`);
+ if(M.pay.on&&M.pay.text)x.push(`<button class="mx" onclick="openInfo('pay')">${esc(M.pay.title||'Formas de pagamento')}</button>`);
  if(M.insta.on&&igUser())x.push(`<a class="mx" href="https://instagram.com/${encodeURIComponent(igUser())}" target="_blank" rel="noopener">${IG}${esc(M.insta.title||'Instagram')} <small>@${esc(igUser())}</small></a>`);
  if(M.wa.on)x.push(`<a class="mx wa" href="#" target="_blank" rel="noopener" onclick="this.href=waLink(waContext())">${WAI}${esc(M.wa.title||'Dúvidas? Fale no WhatsApp')}</a>`);
  h+=x.join('');
  m.innerHTML=h;m.hidden=!m.hidden;$('search').hidden=true;}
-function openInfo(){const M=DB.txt.menu.cond;$('menu').hidden=true;$('iTitle').textContent=M.title||'Como funciona o condicional';
- $('iText').innerHTML=esc(M.text||'').split(/\n{2,}|\n/).filter(Boolean).map(l=>`<p>${l}</p>`).join('');go('info');}
+function openInfo(k='cond'){const M=DB.txt.menu[k];$('menu').hidden=true;
+ $('iEye').textContent=k==='pay'?'Pagamento':'Condicional';$('iTitle').textContent=M.title;
+ const L=esc(M.text||'').split(/\n+/).map(s=>s.trim()).filter(Boolean);
+ $('iText').innerHTML=k==='pay'?'<div class="paylist">'+L.map(l=>`<div class="payrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B08A4F" stroke-width="2"><path d="M5 12l5 5 9-10"/></svg><span>${l}</span></div>`).join('')+'</div>':L.map(l=>`<p>${l}</p>`).join('');
+ $('iCta').textContent=k==='pay'?'Fazer pedido pelo WhatsApp':'Quero meu condicional';$('iCta').onclick=k==='pay'?()=>{$('payWa').href=waLink(waContext());$('payWa').click();}:askCond;
+ go('info');}
 function toggleSearch(){const s=$('search');s.hidden=!s.hidden;$('menu').hidden=true;if(!s.hidden)$('q').focus();else{$('q').value='';renderGrid();}}
 
 /* painel */
@@ -120,10 +125,10 @@ function doLogin(btn){const pw=$('pw').value;if(!pw){$('pwErr').textContent='Dig
 function logout(){sb.auth.signOut();logged=false;toHome();}
 function toHome(){history.replaceState(null,'',location.pathname);go('home');}
 function aTab(t){['p','h','m','t'].forEach(k=>{$('a'+k.toUpperCase()).hidden=k!==t;$('at'+k.toUpperCase()).classList.toggle('on',k===t);});if(t==='t')fillTxt();if(t==='h')renderHomeAdmin();if(t==='m')fillMenu();}
-function fillMenu(){const M=DB.txt.menu;$('mPromoOn').checked=M.promo.on;$('mPromoT').value=M.promo.title;$('mCondOn').checked=M.cond.on;$('mCondT').value=M.cond.title;$('mCondX').value=M.cond.text;$('mIgOn').checked=M.insta.on;$('mIgT').value=M.insta.title;$('mIgU').value=M.insta.user?'@'+igUser():'';$('mWaOn').checked=M.wa.on;$('mWaT').value=M.wa.title;$('mErr').textContent='';}
+function fillMenu(){const M=DB.txt.menu;$('mPromoOn').checked=M.promo.on;$('mPromoT').value=M.promo.title;$('mCondOn').checked=M.cond.on;$('mCondT').value=M.cond.title;$('mCondX').value=M.cond.text;$('mPayOn').checked=M.pay.on;$('mPayT').value=M.pay.title;$('mPayX').value=M.pay.text;$('mIgOn').checked=M.insta.on;$('mIgT').value=M.insta.title;$('mIgU').value=M.insta.user?'@'+igUser():'';$('mWaOn').checked=M.wa.on;$('mWaT').value=M.wa.title;$('mErr').textContent='';}
 function saveMenu(btn){const M=DB.txt.menu,prev=JSON.stringify(M);
  Object.assign(M.promo,{on:$('mPromoOn').checked,title:$('mPromoT').value.trim()||'Promoções'});Object.assign(M.cond,{on:$('mCondOn').checked,title:$('mCondT').value.trim()||'Como funciona o condicional',text:$('mCondX').value.trim()});
- Object.assign(M.insta,{on:$('mIgOn').checked,title:$('mIgT').value.trim()||'Instagram',user:$('mIgU').value.trim()});Object.assign(M.wa,{on:$('mWaOn').checked,title:$('mWaT').value.trim()||'Dúvidas? Fale no WhatsApp'});
+ Object.assign(M.pay,{on:$('mPayOn').checked,title:$('mPayT').value.trim()||'Formas de pagamento',text:$('mPayX').value.trim()});Object.assign(M.insta,{on:$('mIgOn').checked,title:$('mIgT').value.trim()||'Instagram',user:$('mIgU').value.trim()});Object.assign(M.wa,{on:$('mWaOn').checked,title:$('mWaT').value.trim()||'Dúvidas? Fale no WhatsApp'});
  if(M.insta.on&&!igUser()){$('mErr').textContent='Escreva o @ do Instagram ou desligue esse item.';return;}
  busy(btn,async()=>{try{await saveCfg();}catch(e){DB.txt.menu=JSON.parse(prev);throw e;}fillMenu();renderChips();toast('Menu salvo');});}
 function renderAdmin(){const P=DB.prods;$('stT').textContent=P.length;$('stE').textContent=P.filter(p=>p.out).length;$('stA').textContent=P.filter(p=>!p.out).length;

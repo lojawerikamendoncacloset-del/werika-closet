@@ -62,10 +62,10 @@
 <section class="view" id="info">
  <div class="pad" style="padding-top:calc(20px + env(safe-area-inset-top,0px))">
   <button onclick="go('home')" style="font-size:14px;color:var(--gold2);display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>Voltar ao catálogo</button>
-  <p class="eyebrow" style="margin-top:22px;color:#C9A46A">Condicional</p>
+  <p class="eyebrow" id="iEye" style="margin-top:22px;color:#C9A46A">Condicional</p>
   <h2 class="ser" id="iTitle" style="font-size:38px;font-weight:500;line-height:1.05;margin:4px 0 16px;text-wrap:balance"></h2>
   <div class="itext" id="iText"></div>
-  <button class="cta wa" style="margin-top:24px" onclick="askCond()">Quero meu condicional</button>
+  <button class="cta wa" id="iCta" style="margin-top:24px">Quero meu condicional</button><a id="payWa" href="#" target="_blank" rel="noopener" hidden></a>
  </div>
 </section>
 
@@ -115,6 +115,9 @@
     <div class="mcard"><label class="sw"><input type="checkbox" id="mCondOn"><span></span><b>Como funciona o condicional</b></label>
      <label class="lb" for="mCondT">Título</label><input class="in" id="mCondT">
      <label class="lb" for="mCondX">Explicação <small>(cada linha vira um parágrafo)</small></label><textarea class="in" id="mCondX" rows="6"></textarea></div>
+    <div class="mcard"><label class="sw"><input type="checkbox" id="mPayOn"><span></span><b>Formas de pagamento</b></label>
+     <label class="lb" for="mPayT">Título</label><input class="in" id="mPayT">
+     <label class="lb" for="mPayX">Formas aceitas <small>(uma por linha)</small></label><textarea class="in" id="mPayX" rows="4" placeholder="Pix"></textarea></div>
     <div class="mcard"><label class="sw"><input type="checkbox" id="mIgOn"><span></span><b>Instagram</b></label>
      <label class="lb" for="mIgT">Nome no menu</label><input class="in" id="mIgT">
      <label class="lb" for="mIgU">@ do Instagram</label><input class="in" id="mIgU" placeholder="@werikamendonca" autocapitalize="off"></div>
