@@ -275,10 +275,14 @@ function useCrop(){const F=$('cFrame').getBoundingClientRect(),s=cS0*cZ,W=cR<1?9
  cDone&&cDone(out);if(cq.length)nextCrop();else $('crop').hidden=true;}
 function skipCrop(){if(cq.length)nextCrop();else $('crop').hidden=true;}
 
-window.addEventListener('hashchange',()=>{if(location.hash==='#admin')openAdmin();});
+window.addEventListener('hashchange',()=>routeHash());
 async function boot(){
  sb.auth.getSession().then(({data})=>{logged=!!(data&&data.session);});
  try{await loadAll();}catch(e){console.error(e);DB.home=DB.home||defHome();$('blocks').innerHTML='<div class="empty">Não foi possível carregar as peças. Confira a internet e <button onclick="location.reload()" style="text-decoration:underline">tente de novo</button>.</div>';return;}
  ready=true;renderHome();updCount();
- const h=location.hash;if(h==='#admin')openAdmin();else if(h.startsWith('#peca-')&&byId(h.slice(6)))openP(h.slice(6));}
+ routeHash();}
+function routeHash(){if(!ready)return;
+ const h=location.hash;if(h==='#admin')openAdmin();else if(h.startsWith('#peca-')&&byId(h.slice(6))&&cur!==h.slice(6))openP(h.slice(6));
+ else if(h==='#promocoes'){history.replaceState(null,'',location.pathname);go('home');pickCat('__promo');setTimeout(()=>$('chips')&&$('chips').scrollIntoView({behavior:'smooth',block:'start'}),300);}
+ else if(h==='#condicional'||h==='#pagamento'){history.replaceState(null,'',location.pathname);openInfo(h==='#condicional'?'cond':'pay');}}
 boot();
