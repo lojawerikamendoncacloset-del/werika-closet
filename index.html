@@ -41,7 +41,7 @@
 
 <section class="view" id="prod">
  <div class="big"><img id="bigImg" src="" alt="">
-  <button class="round" style="left:max(14px,env(safe-area-inset-left,0px))" onclick="go('home')" aria-label="Voltar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4A2E1E" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button class="round" style="left:max(14px,env(safe-area-inset-left,0px))" onclick="goBack('home')" aria-label="Voltar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4A2E1E" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button>
   <button class="round" style="right:max(14px,env(safe-area-inset-right,0px))" onclick="go('bag')" aria-label="Abrir sacola"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4A2E1E" stroke-width="1.6"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="badge" data-cnt>0</span></button>
   <div class="thumbs" id="thumbs"></div>
  </div>
@@ -61,7 +61,7 @@
 
 <section class="view" id="info">
  <div class="pad" style="padding-top:calc(20px + env(safe-area-inset-top,0px))">
-  <button onclick="go('home')" style="font-size:14px;color:var(--gold2);display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>Voltar ao catálogo</button>
+  <button onclick="goBack('home')" style="font-size:14px;color:var(--gold2);display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>Voltar ao catálogo</button>
   <p class="eyebrow" id="iEye" style="margin-top:22px;color:#C9A46A">Condicional</p>
   <h2 class="ser" id="iTitle" style="font-size:38px;font-weight:500;line-height:1.05;margin:4px 0 16px;text-wrap:balance"></h2>
   <div class="itext" id="iText"></div>
@@ -71,7 +71,7 @@
 
 <section class="view" id="bag">
  <div class="pad" style="padding-top:calc(20px + env(safe-area-inset-top,0px))">
-  <button onclick="go('home')" style="font-size:14px;color:var(--gold2);display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>Continuar comprando</button>
+  <button onclick="goBack('home')" style="font-size:14px;color:var(--gold2);display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>Continuar comprando</button>
   <h2 class="ser" style="font-size:40px;font-weight:500;margin:14px 0 18px">Sua sacola</h2>
   <div id="items" style="display:flex;flex-direction:column;gap:12px"></div>
   <div id="modeBox"><p class="eyebrow" style="margin-top:24px;color:var(--ink)">Como você quer receber?</p>
@@ -162,7 +162,7 @@
 
 <section class="view adm" id="bedit">
  <div class="ahdr pad">
-  <button class="pill" onclick="go('admin');aTab('h')">‹ Voltar</button>
+  <button class="pill" onclick="goBack('admin');setTimeout(()=>aTab('h'),30)">‹ Voltar</button>
   <h2 class="ser" id="bTitle" style="font-size:24px;font-weight:500">Bloco</h2>
   <span style="width:70px"></span>
  </div>
@@ -181,7 +181,7 @@
 
 <section class="view adm" id="edit">
  <div class="ahdr pad">
-  <button class="pill" onclick="go('admin')">‹ Voltar</button>
+  <button class="pill" onclick="goBack('admin')">‹ Voltar</button>
   <h2 class="ser" id="eTitle" style="font-size:26px;font-weight:500">Nova peça</h2>
   <span style="width:70px"></span>
  </div>
